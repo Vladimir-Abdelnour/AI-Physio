@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOAP Report - {{ soap.patient_name }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1in;
+            @top-center {
+                content: "SOAP Report - {{ soap.patient_name }}";
+                font-family: Arial, sans-serif;
+                font-size: 10pt;
+                color: #666;
+            }
+            @bottom-center {
+                content: "Page " counter(page) " of " counter(pages);
+                font-family: Arial, sans-serif;
+                font-size: 10pt;
+                color: #666;
+            }
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #2c5aa0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .clinic-logo {
+            max-height: 80px;
+            margin-bottom: 10px;
+        }
+        
+        .report-title {
+            font-size: 24pt;
+            font-weight: bold;
+            color: #2c5aa0;
+            margin: 0;
+        }
+        
+        .patient-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            border-left: 4px solid #2c5aa0;
+        }
+        
+        .patient-info h2 {
+            margin-top: 0;
+            color: #2c5aa0;
+            font-size: 18pt;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .info-item {
+            margin-bottom: 8px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .soap-section {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+        
+        .soap-header {
+            background-color: #2c5aa0;
+            color: white;
+            padding: 12px 15px;
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 0;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .soap-content {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-top: none;
+            padding: 20px;
+            border-radius: 0 0 5px 5px;
+            white-space: pre-wrap;
+            line-height: 1.8;
+        }
+        
+        .subjective .soap-header {
+            background-color: #28a745;
+        }
+        
+        .objective .soap-header {
+            background-color: #17a2b8;
+        }
+        
+        .assessment .soap-header {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .plan .soap-header {
+            background-color: #dc3545;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+        }
+        
+        .signature-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            margin-top: 40px;
+        }
+        
+        .signature-line {
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+            min-height: 60px;
+        }
+        
+        .signature-label {
+            font-size: 10pt;
+            color: #666;
+            text-align: center;
+        }
+        
+        .therapist-signature {
+            max-height: 50px;
+            margin-bottom: 10px;
+        }
+        
+        .metadata {
+            font-size: 10pt;
+            color: #666;
+            margin-top: 20px;
+        }
+        
+        .page-break {
+            page-break-before: always;
+        }
+        
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        {% if soap.clinic_logo_url %}
+        <img src="{{ soap.clinic_logo_url }}" alt="Clinic Logo" class="clinic-logo">
+        {% endif %}
+        <h1 class="report-title">SOAP Report</h1>
+        <p>Physiotherapy Session Documentation</p>
+    </div>
+    
+    <div class="patient-info">
+        <h2>Patient Information</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Patient Name:</span> {{ soap.patient_name }}
+            </div>
+            <div class="info-item">
+                <span class="info-label">Session Date:</span> {{ soap.session_date.strftime('%B %d, %Y') if soap.session_date.strftime else soap.session_date }}
+            </div>
+            {% if soap.patient_id %}
+            <div class="info-item">
+                <span class="info-label">Patient ID:</span> {{ soap.patient_id }}
+            </div>
+            {% endif %}
+            {% if soap.therapist_name %}
+            <div class="info-item">
+                <span class="info-label">Therapist:</span> {{ soap.therapist_name }}
+            </div>
+            {% endif %}
+            {% if soap.session_duration %}
+            <div class="info-item">
+                <span class="info-label">Session Duration:</span> {{ soap.session_duration }} minutes
+            </div>
+            {% endif %}
+            {% if soap.chief_complaint %}
+            <div class="info-item">
+                <span class="info-label">Chief Complaint:</span> {{ soap.chief_complaint }}
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if soap.treatment_goals %}
+        <div class="info-item" style="margin-top: 15px;">
+            <span class="info-label">Treatment Goals:</span><br>
+            {{ soap.treatment_goals }}
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="soap-section subjective">
+        <h2 class="soap-header">SUBJECTIVE</h2>
+        <div class="soap-content">{{ soap.subjective }}</div>
+    </div>
+    
+    <div class="soap-section objective">
+        <h2 class="soap-header">OBJECTIVE</h2>
+        <div class="soap-content">{{ soap.objective }}</div>
+    </div>
+    
+    <div class="soap-section assessment">
+        <h2 class="soap-header">ASSESSMENT</h2>
+        <div class="soap-content">{{ soap.assessment }}</div>
+    </div>
+    
+    <div class="soap-section plan">
+        <h2 class="soap-header">PLAN</h2>
+        <div class="soap-content">{{ soap.plan }}</div>
+    </div>
+    
+    {% if soap.follow_up_date %}
+    <div class="patient-info" style="margin-top: 30px;">
+        <h3 style="margin-top: 0; color: #2c5aa0;">Follow-up Information</h3>
+        <div class="info-item">
+            <span class="info-label">Next Appointment:</span> {{ soap.follow_up_date.strftime('%B %d, %Y') if soap.follow_up_date.strftime else soap.follow_up_date }}
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="footer">
+        <div class="signature-section">
+            <div>
+                <div class="signature-line">
+                    {% if soap.therapist_signature_url %}
+                    <img src="{{ soap.therapist_signature_url }}" alt="Therapist Signature" class="therapist-signature">
+                    {% endif %}
+                </div>
+                <div class="signature-label">
+                    Therapist Signature{% if soap.therapist_name %} - {{ soap.therapist_name }}{% endif %}
+                </div>
+            </div>
+            <div>
+                <div class="signature-line"></div>
+                <div class="signature-label">Date: {{ current_date.strftime('%B %d, %Y') if current_date else '' }}</div>
+            </div>
+        </div>
+        
+        <div class="metadata">
+            <p>Report generated on {{ current_date.strftime('%B %d, %Y at %I:%M %p') if current_date else '' }}</p>
+            <p style="font-size: 8pt; color: #999;">
+                This document contains confidential patient health information protected by HIPAA.
+                Unauthorized disclosure is prohibited.
+            </p>
+        </div>
+    </div>
+</body>
+</html> 
