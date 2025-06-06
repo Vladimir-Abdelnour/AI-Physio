@@ -210,4 +210,7 @@ htmlcov/
 # Development databases
 *.db
 *.sqlite
-*.sqlite3 
+*.sqlite3
+
+# frontend
+/frontend/build
