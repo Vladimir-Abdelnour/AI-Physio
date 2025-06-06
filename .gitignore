@@ -103,7 +103,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+# .env removed this for it to be in the repo (DO NOT ADD the OPENAI key here)
 .venv
 env/
 venv/
@@ -210,4 +210,7 @@ htmlcov/
 # Development databases
 *.db
 *.sqlite
-*.sqlite3 
+*.sqlite3
+
+# frontend
+/frontend/build
